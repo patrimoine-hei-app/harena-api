@@ -44,4 +44,13 @@ jobs:
 
       - run: pip install poja --upgrade
       - run: python -m poja --poja-conf poja.yml --output-dir=. --github-username=${{ secrets.POJA_GH_USERNAME }} --github-token=${{ secrets.POJA_GH_TOKEN }}
-      - run: git diff --exit-code --ignore-permissions
+      - name: Reset file permissions
+        run: |
+             chmod 644 .shell/publish_gen_to_maven_local.bat
+             chmod 644 .shell/publish_gen_to_maven_local.sh
+             chmod 644 build.gradle
+             chmod 644 format.sh
+             chmod 644 gradlew
+             chmod 644 gradlew.bat
+
+      - run: git diff --exit-code
