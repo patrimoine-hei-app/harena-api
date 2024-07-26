@@ -1,0 +1,81 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: harena-com - Computation and API
+
+Globals:
+  Function:
+    CodeUri: .
+    Runtime: java21
+    Tracing: Active
+    Architectures:
+      - arm64
+    EventInvokeConfig:
+      MaximumRetryAttempts: 0
+    AutoPublishAlias: live
+    SnapStart:
+      ApplyOn: PublishedVersions
+    
+    Environment:
+      Variables:
+        ENV: !Ref Env
+        AWS_S3_BUCKET: !Sub '{{resolve:ssm:/harena-com/${Env}/s3/bucket-name}}'
+        AWS_SES_SOURCE: lou@hei.school
+        
+        
+        
+        
+        
+
+Parameters:
+  Env:
+    Type: String
+
+Resources:
+  FrontalServerlessRestApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      BinaryMediaTypes:
+        - "*~1*"
+
+  FrontalFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: com.harena.api.ApiEventHandler::handleRequest
+      MemorySize: 512
+      Timeout: 30
+      Role: !Sub '{{resolve:ssm:/harena-com/${Env}/execution/role-arn}}'
+      
+      Events:
+        ApiCall:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+            RestApiId:
+              Ref: FrontalServerlessRestApi
+
+  ApplicationResourceGroup:
+    Type: AWS::ResourceGroups::Group
+    Properties:
+      Name:
+        Fn::Sub: ApplicationInsights-SAM-${AWS::StackName}
+      ResourceQuery:
+        Type: CLOUDFORMATION_STACK_1_0
+  ApplicationInsightsMonitoring:
+    Type: AWS::ApplicationInsights::Application
+    Properties:
+      ResourceGroupName: !Ref ApplicationResourceGroup
+      AutoConfigurationEnabled: 'true'
+
+  ApiUrlSSM:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Join [ '', [ /harena-com/, !Ref Env, /api/url ] ]
+      Type: String
+      Value: !Sub "https://${FrontalServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod"
+
+Outputs:
+  ApiUrl:
+    Description: API Gateway endpoint URL
+    Value: !GetAtt ApiUrlSSM.Value
