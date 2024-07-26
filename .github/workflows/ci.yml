@@ -73,7 +73,7 @@ jobs:
                  chmod 644 .shell/publish_gen_to_maven_local.bat
                  chmod 644 .shell/publish_gen_to_maven_local.sh
                  chmod 644 build.gradle
-                 chmod 644 format.sh
+                 chmod 755 format.sh
                  chmod 644 gradlew
                  chmod 644 gradlew.bat
       - run: ./format.sh && git diff --exit-code
