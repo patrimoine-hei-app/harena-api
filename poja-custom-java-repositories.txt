@@ -1,0 +1,19 @@
+mavenLocal()
+maven {
+    url 'https://patrimoine-134896778594.d.codeartifact.eu-west-3.amazonaws.com/maven/patrimoine/'
+    credentials {
+        username = 'aws'
+        password = {
+            def output = new ByteArrayOutputStream()
+            exec {
+                if(Os.isFamily(Os.FAMILY_WINDOWS)){
+                    commandLine 'powershell', '-Command', 'aws codeartifact get-authorization-token --domain patrimoine --domain-owner 134896778594 --region eu-west-3 --query authorizationToken --output text'
+                }else {
+                    commandLine 'bash', '-c', 'aws codeartifact get-authorization-token --domain patrimoine --domain-owner 134896778594 --region eu-west-3 --query authorizationToken --output text'
+                }
+                standardOutput = output
+            }
+            return output.toString().trim()
+        }()
+    }
+}
