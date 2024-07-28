@@ -4,20 +4,20 @@ import lombok.Getter;
 
 @Getter
 public class ApiException extends RuntimeException {
-    private final ExceptionType type;
+  private final ExceptionType type;
 
-    public ApiException(ExceptionType type, String message) {
-        super(message);
-        this.type = type;
-    }
+  public ApiException(ExceptionType type, String message) {
+    super(message);
+    this.type = type;
+  }
 
-    public ApiException(ExceptionType type, Exception source) {
-        super(source);
-        this.type = type;
-    }
+  public ApiException(ExceptionType type, Exception source) {
+    super(source);
+    this.type = type;
+  }
 
-    public enum ExceptionType {
-        CLIENT_EXCEPTION,
-        SERVER_EXCEPTION
-    }
+  public enum ExceptionType {
+    CLIENT_EXCEPTION,
+    SERVER_EXCEPTION
+  }
 }
