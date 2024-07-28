@@ -12,7 +12,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
-import java.util.Optional;
 import org.springframework.stereotype.Repository;
 import school.hei.patrimoine.modele.Patrimoine;
 import school.hei.patrimoine.serialisation.Serialiseur;
@@ -44,14 +43,6 @@ public class PatrimoineRepository {
     return patrimoineFiles.stream().map(this::createPatrimoineFrom).toList();
   }
 
-  public Optional<Patrimoine> getPatrimoineByName(String name) {
-    List<File> patrimoineFiles = bucketComponent.getFilesFromS3(Integer.MAX_VALUE, 0);
-    return patrimoineFiles.stream()
-        .map(this::createPatrimoineFrom)
-        .filter(patrimoine -> patrimoine.nom().equals(name))
-        .findFirst();
-  }
-
   private Patrimoine createPatrimoineFrom(File patrimoineFile) {
     String patrimoineAsString;
     try {
@@ -68,5 +59,21 @@ public class PatrimoineRepository {
     } catch (Exception e) {
       throw new InternalServerErrorException(e);
     }
+  }
+
+  public Patrimoine getPatrimoineByName(String name) {
+    List<File> patrimoineFiles = bucketComponent.getFilesFromS3(Integer.MAX_VALUE, 0);
+    for (File file : patrimoineFiles) {
+      try {
+        String patrimoineAsString = Files.readString(file.toPath());
+        Patrimoine patrimoine = objectMapper.readValue(patrimoineAsString, Patrimoine.class);
+        if (patrimoine.nom().equals(name)) {
+          return patrimoine;
+        }
+      } catch (IOException e) {
+        throw new InternalServerErrorException(e);
+      }
+    }
+    return null;
   }
 }

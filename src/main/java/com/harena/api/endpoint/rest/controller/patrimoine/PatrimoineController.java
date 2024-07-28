@@ -7,7 +7,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
-import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +14,7 @@ import school.hei.patrimoine.modele.Patrimoine;
 
 @RestController
 @AllArgsConstructor
+@CrossOrigin(origins = "http://localhost:5173")
 public class PatrimoineController {
   private final PatrimoineService service;
 
@@ -23,12 +23,8 @@ public class PatrimoineController {
       @RequestParam(value = "page", defaultValue = "0") int page,
       @RequestParam(value = "page_size", defaultValue = "10") int pageSize) {
     List<Patrimoine> data = service.getPaginatedPatrimoines(page, pageSize);
-    return new GetPatrimoines200Response().data(data);
-  }
 
-  @GetMapping("/patrimoines/{name}")
-  public Optional<Patrimoine> getPatrimoinesByName(@PathVariable(value = "name") String name) {
-    return service.getPatrimoineByName(name);
+    return new GetPatrimoines200Response().data(data);
   }
 
   @PutMapping("/patrimoines")
@@ -38,10 +34,10 @@ public class PatrimoineController {
     }
 
     try {
-      File file = convertStringToFile(fileContent, "patrimoine.txt");
+      File file = convertStringToFile(fileContent, "uploaded-file.txt");
       service.uploadPatrimoine(file, "test/" + file.getName());
       Files.delete(file.toPath());
-      return ResponseEntity.ok("Patrimoine uploaded successfully");
+      return ResponseEntity.ok("File uploaded successfully");
     } catch (IOException e) {
       return ResponseEntity.status(500).body("Error uploading file: " + e.getMessage());
     }
@@ -53,5 +49,15 @@ public class PatrimoineController {
       fos.write(fileContent.getBytes());
     }
     return file;
+  }
+
+  @GetMapping("/patrimoines/{name}")
+  public ResponseEntity<Patrimoine> getPatrimoineByName(@PathVariable String name) {
+    Patrimoine patrimoine = service.getPatrimoineByName(name);
+    if (patrimoine != null) {
+      return ResponseEntity.ok(patrimoine);
+    } else {
+      return ResponseEntity.notFound().build();
+    }
   }
 }
