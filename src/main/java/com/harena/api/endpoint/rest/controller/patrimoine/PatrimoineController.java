@@ -50,4 +50,14 @@ public class PatrimoineController {
     }
     return file;
   }
+
+  @GetMapping("/patrimoines/{name}")
+  public ResponseEntity<Patrimoine> getPatrimoineByName(@PathVariable String name) {
+    Patrimoine patrimoine = service.getPatrimoineByName(name);
+    if (patrimoine != null) {
+      return ResponseEntity.ok(patrimoine);
+    } else {
+      return ResponseEntity.notFound().build();
+    }
+  }
 }

@@ -60,4 +60,20 @@ public class PatrimoineRepository {
       throw new InternalServerErrorException(e);
     }
   }
+
+  public Patrimoine getPatrimoineByName(String name) {
+    List<File> patrimoineFiles = bucketComponent.getFilesFromS3(Integer.MAX_VALUE, 0);
+    for (File file : patrimoineFiles) {
+      try {
+        String patrimoineAsString = Files.readString(file.toPath());
+        Patrimoine patrimoine = objectMapper.readValue(patrimoineAsString, Patrimoine.class);
+        if (patrimoine.nom().equals(name)) {
+          return patrimoine;
+        }
+      } catch (IOException e) {
+        throw new InternalServerErrorException(e);
+      }
+    }
+    return null;
+  }
 }

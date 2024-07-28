@@ -19,4 +19,8 @@ public class PatrimoineService {
   public void uploadPatrimoine(File file, String bucketKey) {
     repository.uploadPatrimoine(file, bucketKey);
   }
+
+  public Patrimoine getPatrimoineByName(String name) {
+    return repository.getPatrimoineByName(name);
+  }
 }
