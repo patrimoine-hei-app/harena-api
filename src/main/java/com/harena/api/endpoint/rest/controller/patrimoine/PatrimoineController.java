@@ -20,8 +20,8 @@ public class PatrimoineController {
 
   @GetMapping("/patrimoines")
   public GetPatrimoines200Response getPatrimoines(
-      @RequestParam(value = "page", defaultValue = "0") int page,
-      @RequestParam(value = "page_size", defaultValue = "10") int pageSize) {
+          @RequestParam(value = "page", defaultValue = "0") int page,
+          @RequestParam(value = "page_size", defaultValue = "10") int pageSize) {
     List<Patrimoine> data = service.getPaginatedPatrimoines(page, pageSize);
     return new GetPatrimoines200Response().data(data);
   }

@@ -21,50 +21,42 @@ public class PatrimoineDeserializer extends JsonDeserializer<Patrimoine> {
 
   @Override
   public Patrimoine deserialize(JsonParser p, DeserializationContext ctxt)
-      throws IOException, JsonProcessingException {
+          throws IOException, JsonProcessingException {
     JsonNode node = p.getCodec().readTree(p);
 
-    String nom = node.get("nom").asText();
-    LocalDate t = LocalDate.parse(node.get("t").asText(), DateTimeFormatter.ISO_LOCAL_DATE);
+    String nom = node.has("nom") ? node.get("nom").asText() : "DefaultNom";
+    LocalDate t = node.has("t") ? LocalDate.parse(node.get("t").asText(), DateTimeFormatter.ISO_LOCAL_DATE) : LocalDate.now();
 
     JsonNode possesseurNode = node.get("possesseur");
-    String possesseurNom = possesseurNode.get("nom").asText();
+    String possesseurNom = (possesseurNode != null && possesseurNode.has("nom")) ? possesseurNode.get("nom").asText() : "DefaultPerson";
     Personne possesseur = new Personne(possesseurNom);
 
     Set<Possession> possessions = new HashSet<>();
-    Iterator<JsonNode> elements = node.get("possessions").elements();
-    while (elements.hasNext()) {
-      JsonNode possessionNode = elements.next();
-      String type = possessionNode.get("type").asText();
+    JsonNode possessionsNode = node.get("possessions");
+    if (possessionsNode != null && possessionsNode.isArray()) {
+      Iterator<JsonNode> elements = possessionsNode.elements();
+      while (elements.hasNext()) {
+        JsonNode possessionNode = elements.next();
+        String type = possessionNode.has("type") ? possessionNode.get("type").asText() : "Unknown";
 
-      String possessionNom = possessionNode.get("nom").asText();
-      LocalDate possessionT =
-          LocalDate.parse(possessionNode.get("t").asText(), DateTimeFormatter.ISO_LOCAL_DATE);
-      int valeurComptable = possessionNode.get("valeurComptable").asInt();
+        String possessionNom = possessionNode.has("nom") ? possessionNode.get("nom").asText() : "DefaultPossession";
+        LocalDate possessionT = possessionNode.has("t") ? LocalDate.parse(possessionNode.get("t").asText(), DateTimeFormatter.ISO_LOCAL_DATE) : LocalDate.now();
+        int valeurComptable = possessionNode.has("valeurComptable") ? possessionNode.get("valeurComptable").asInt() : 0;
 
-      switch (type) {
-        case "Argent":
-          possessions.add(new Argent(possessionNom, possessionT, valeurComptable));
-          break;
-        case "Materiel":
-          LocalDate dateAcquisition =
-              LocalDate.parse(
-                  possessionNode.get("dateAcquisition").asText(), DateTimeFormatter.ISO_LOCAL_DATE);
-          double tauxDAppreciationAnnuelle =
-              possessionNode.get("tauxDAppreciationAnnuelle").asDouble();
-          possessions.add(
-              new Materiel(
-                  possessionNom,
-                  possessionT,
-                  valeurComptable,
-                  dateAcquisition,
-                  tauxDAppreciationAnnuelle));
-          break;
-        default:
-          throw new IllegalArgumentException("Unknown possession type: " + type);
+        switch (type) {
+          case "Argent":
+            possessions.add(new Argent(possessionNom, possessionT, valeurComptable));
+            break;
+          case "Materiel":
+            LocalDate dateAcquisition = possessionNode.has("dateAcquisition") ? LocalDate.parse(possessionNode.get("dateAcquisition").asText(), DateTimeFormatter.ISO_LOCAL_DATE) : LocalDate.now();
+            double tauxDAppreciationAnnuelle = possessionNode.has("tauxDAppreciationAnnuelle") ? possessionNode.get("tauxDAppreciationAnnuelle").asDouble() : 0.0;
+            possessions.add(new Materiel(possessionNom, possessionT, valeurComptable, dateAcquisition, tauxDAppreciationAnnuelle));
+            break;
+          default:
+            throw new IllegalArgumentException("Unknown possession type: " + type);
+        }
       }
     }
-
     return new Patrimoine(nom, possesseur, t, possessions);
   }
 }

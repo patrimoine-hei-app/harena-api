@@ -21,22 +21,22 @@ public class ExtendedBucket {
   public List<File> getFilesFromS3(int limit, int offset) {
     List<File> results = new ArrayList<>();
     ListObjectsV2Request listObjectsV2Request =
-        ListObjectsV2Request.builder()
-            .bucket(bucketComponent.getBucketName())
-            .maxKeys(limit)
-            .build();
+            ListObjectsV2Request.builder()
+                    .bucket(bucketComponent.getBucketName())
+                    .maxKeys(limit)
+                    .build();
     ListObjectsV2Iterable listObjectsV2Iterable =
-        s3Client.listObjectsV2Paginator(listObjectsV2Request);
+            s3Client.listObjectsV2Paginator(listObjectsV2Request);
     int currentPage = 0;
 
     for (ListObjectsV2Response page : listObjectsV2Iterable) {
       currentPage++;
       if (currentPage == offset + 1) {
         page.contents().stream()
-            .forEach(
-                object -> {
-                  results.add(bucketComponent.download(object.key()));
-                });
+                .forEach(
+                        object -> {
+                          results.add(bucketComponent.download(object.key()));
+                        });
       }
     }
 
