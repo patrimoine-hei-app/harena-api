@@ -12,7 +12,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
-import java.util.Optional;
 import org.springframework.stereotype.Repository;
 import school.hei.patrimoine.modele.Patrimoine;
 import school.hei.patrimoine.serialisation.Serialiseur;
@@ -33,6 +32,7 @@ public class PatrimoineRepository {
     this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     this.objectMapper.configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
     this.objectMapper.configure(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE, false);
+
     SimpleModule module = new SimpleModule();
     module.addDeserializer(Patrimoine.class, new PatrimoineDeserializer());
     this.objectMapper.registerModule(module);
@@ -41,14 +41,6 @@ public class PatrimoineRepository {
   public List<Patrimoine> getAllPaginatedPatrimoines(int limit, int offset) {
     List<File> patrimoineFiles = bucketComponent.getFilesFromS3(limit, offset);
     return patrimoineFiles.stream().map(this::createPatrimoineFrom).toList();
-  }
-
-  public Optional<Patrimoine> getPatrimoineByName(String name) {
-    List<File> patrimoineFiles = bucketComponent.getFilesFromS3(Integer.MAX_VALUE, 0);
-    return patrimoineFiles.stream()
-        .map(this::createPatrimoineFrom)
-        .filter(patrimoine -> patrimoine.nom().equals(name))
-        .findFirst();
   }
 
   private Patrimoine createPatrimoineFrom(File patrimoineFile) {
