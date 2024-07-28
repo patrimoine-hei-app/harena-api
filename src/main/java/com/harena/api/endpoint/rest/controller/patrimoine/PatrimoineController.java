@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import school.hei.patrimoine.modele.Patrimoine;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
