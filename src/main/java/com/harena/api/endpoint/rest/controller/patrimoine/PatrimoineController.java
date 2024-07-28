@@ -7,6 +7,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.Optional;
+
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +27,12 @@ public class PatrimoineController {
     return new GetPatrimoines200Response().data(data);
   }
 
+
+  @GetMapping("/patrimoines/{name}")
+  public Optional<Patrimoine> getPatrimoinesByName(@PathVariable(value = "name") String name) {
+    return service.getPatrimoineByName(name);
+  }
+
   @PutMapping("/patrimoines")
   public ResponseEntity<String> uploadPatrimoine(@RequestBody String fileContent) {
     if (fileContent.isEmpty()) {
@@ -32,10 +40,10 @@ public class PatrimoineController {
     }
 
     try {
-      File file = convertStringToFile(fileContent, "uploaded-file.txt");
+      File file = convertStringToFile(fileContent, "patrimoine.txt");
       service.uploadPatrimoine(file, "test/" + file.getName());
       Files.delete(file.toPath());
-      return ResponseEntity.ok("File uploaded successfully");
+      return ResponseEntity.ok("Patrimoine uploaded successfully");
     } catch (IOException e) {
       return ResponseEntity.status(500).body("Error uploading file: " + e.getMessage());
     }
