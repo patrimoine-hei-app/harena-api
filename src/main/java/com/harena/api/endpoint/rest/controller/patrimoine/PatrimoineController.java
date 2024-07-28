@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Optional;
-
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +25,6 @@ public class PatrimoineController {
     List<Patrimoine> data = service.getPaginatedPatrimoines(page, pageSize);
     return new GetPatrimoines200Response().data(data);
   }
-
 
   @GetMapping("/patrimoines/{name}")
   public Optional<Patrimoine> getPatrimoinesByName(@PathVariable(value = "name") String name) {
