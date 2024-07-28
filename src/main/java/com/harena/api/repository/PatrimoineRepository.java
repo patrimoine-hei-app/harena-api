@@ -47,9 +47,9 @@ public class PatrimoineRepository {
   public Optional<Patrimoine> getPatrimoineByName(String name) {
     List<File> patrimoineFiles = bucketComponent.getFilesFromS3(Integer.MAX_VALUE, 0);
     return patrimoineFiles.stream()
-            .map(this::createPatrimoineFrom)
-            .filter(patrimoine -> patrimoine.nom().equals(name))
-            .findFirst();
+        .map(this::createPatrimoineFrom)
+        .filter(patrimoine -> patrimoine.nom().equals(name))
+        .findFirst();
   }
 
   private Patrimoine createPatrimoineFrom(File patrimoineFile) {

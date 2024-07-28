@@ -8,40 +8,42 @@ import com.harena.api.deserializer.PatrimoineDeserializer;
 import com.harena.api.exception.InternalServerErrorException;
 import com.harena.api.file.BucketComponent;
 import com.harena.api.file.ExtendedBucket;
+import java.io.File;
 import org.springframework.boot.ssl.DefaultSslBundleRegistry;
 import org.springframework.stereotype.Repository;
 import school.hei.patrimoine.modele.Patrimoine;
 import school.hei.patrimoine.serialisation.Serialiseur;
-import java.io.File;
 
 @Repository
 public class PossessionRepository {
-    private final ExtendedBucket bucketComponent;
-    private final Serialiseur serialiseur;
-    private final BucketComponent uploadComponent;
-    private final ObjectMapper objectMapper;
+  private final ExtendedBucket bucketComponent;
+  private final Serialiseur serialiseur;
+  private final BucketComponent uploadComponent;
+  private final ObjectMapper objectMapper;
 
-    public PossessionRepository(ExtendedBucket bucketComponent, BucketComponent uploadComponent, DefaultSslBundleRegistry sslBundleRegistry) {
-        this.bucketComponent = bucketComponent;
-        this.uploadComponent = uploadComponent;
-        this.serialiseur = new Serialiseur<Patrimoine>();
-        this.objectMapper = new ObjectMapper();
-        this.objectMapper.registerModule(new JavaTimeModule());
-        this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        this.objectMapper.configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
-        this.objectMapper.configure(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE, false);
+  public PossessionRepository(
+      ExtendedBucket bucketComponent,
+      BucketComponent uploadComponent,
+      DefaultSslBundleRegistry sslBundleRegistry) {
+    this.bucketComponent = bucketComponent;
+    this.uploadComponent = uploadComponent;
+    this.serialiseur = new Serialiseur<Patrimoine>();
+    this.objectMapper = new ObjectMapper();
+    this.objectMapper.registerModule(new JavaTimeModule());
+    this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    this.objectMapper.configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
+    this.objectMapper.configure(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE, false);
 
-        SimpleModule module = new SimpleModule();
-        module.addDeserializer(Patrimoine.class, new PatrimoineDeserializer());
-        this.objectMapper.registerModule(module);
+    SimpleModule module = new SimpleModule();
+    module.addDeserializer(Patrimoine.class, new PatrimoineDeserializer());
+    this.objectMapper.registerModule(module);
+  }
+
+  public void uploadPossession(File file, String bucketKey) {
+    try {
+      uploadComponent.upload(file, bucketKey);
+    } catch (Exception e) {
+      throw new InternalServerErrorException(e);
     }
-
-    public void uploadPossession(File file, String bucketKey) {
-        try {
-            uploadComponent.upload(file, bucketKey);
-        } catch (Exception e) {
-            throw new InternalServerErrorException(e);
-        }
-    }
-
+  }
 }
