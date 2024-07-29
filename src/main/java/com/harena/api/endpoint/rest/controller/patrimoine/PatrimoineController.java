@@ -14,7 +14,7 @@ import school.hei.patrimoine.modele.Patrimoine;
 
 @RestController
 @AllArgsConstructor
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = {"http://localhost:5173", "https://harena-ui-uehz.vercel.app/"})
 public class PatrimoineController {
   private final PatrimoineService service;
 
